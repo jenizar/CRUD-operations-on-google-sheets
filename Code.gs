@@ -12,7 +12,7 @@ function doGet(request) {
 /* DEFINE GLOBAL VARIABLES, CHANGE THESE VARIABLES TO MATCH WITH YOUR SHEET */
 function globalVariables(){ 
   var varArray = {
-    spreadsheetId   : '10nUQxwLpizaXwrZZ7kpCW9DpvXSLn6qFO7ACIch_YOY', //** CHANGE !!!
+    spreadsheetId   : '10nUQxwLpizaXwrZZ7kpCW9DpvABCn6qFO7ACIch_YOY', //** CHANGE !!!
     dataRage        : 'Data!A2:G',                                    //** CHANGE !!!
     idRange         : 'Data!A2:A',                                    //** CHANGE !!!
     lastCol         : 'G',                                            //** CHANGE !!!
