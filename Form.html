@@ -1,0 +1,70 @@
+<!-- ## The html code of the form goes here -->
+<!-- ## This is included in the Index.html page using "include('Form')" function -->
+
+<form id="myForm" class="p-2 border border-light rounded bg-light" onsubmit="handleFormSubmit(this)"> <!-- Call JavaScript function "handleFormSubmit" -->
+    <p class="h4 mb-4 text-center">SAP ABAP Consultant Timesheet Form</p>
+    <div id="message"></div>
+    <input type="text" id="RecId" name="RecId" value="" style="display: none">
+	<div class="form-group">
+		<label for="name" >Name</label>
+		<input type="text" class="form-control" id="name" name="name" placeholder="Name" required>
+	</div>
+ 
+	<div class="form-row">
+		<div class="form-group col-md-6">
+			<p>RICEF</p>
+			<div class="form-check form-check-inline">
+				<input class="form-check-input" type="radio" name="ricef" id="report" value="report">
+				<label class="form-check-label" for="report">Report</label>
+			</div>
+			<div class="form-check form-check-inline">
+				<input class="form-check-input" type="radio" name="ricef" id="interface" value="interface">
+				<label class="form-check-label" for="interface">Interface</label>
+			</div>
+		</div>
+		<div class="form-group col-md-6">
+			<label for="dateOfAssignment">Date of Assignment</label>
+			<input type="date" class="form-control" id="dateOfAssignment" name="dateOfAssignment">
+		</div>   
+	</div>
+    
+	<div class="form-row">
+		<div class="form-group col-md-6">
+			<div class="form-check form-check-inline">
+				<input class="form-check-input" type="radio" name="ricef" id="conversion" value="conversion">
+				<label class="form-check-label" for="conversion">Conversion</label>
+			</div>
+			<div class="form-check form-check-inline">
+				<input class="form-check-input" type="radio" name="ricef" id="enhancement" value="enhancement">
+				<label class="form-check-label" for="enhancement">Enhancement</label>
+			</div>
+			<div class="form-check form-check-inline">
+				<input class="form-check-input" type="radio" name="ricef" id="form" value="form">
+				<label class="form-check-label" for="form">Form</label>
+			</div>            
+		</div>
+    </div>    
+
+	<div class="form-group">
+		<label for="description">Description</label>
+		<input type="description" class="form-control" id="description" name="description" placeholder="Description">
+	</div>
+
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="exampleFormControlSelect1">Module</label>
+        <select class="form-control" id="module" name="module">
+          <option>Select Module</option>
+        </select>
+      </div>
+      <div class="form-group col-md-6">
+        <label for="exampleFormControlSelect2">Status</label>
+        <select class="form-control" id="status" name="status">
+          <option>Select Status</option>
+        </select>
+      </div>
+    </div>
+       
+	<button type="submit" class="btn btn-primary">Submit</button>
+    <input class="btn btn-secondary" type="reset" value="Reset">
+</form>
