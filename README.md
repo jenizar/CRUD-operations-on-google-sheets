@@ -7,6 +7,22 @@ Online Data Entry Form that can Perform CRUD Operations on Google Sheets
 ![alt text](https://github.com/jenizar/CRUD-operations-on-google-sheets/blob/main/Screenshot2.png)
 
 
+Step by step:
+1. Create spreadsheet 
+
+2. Create File : 
+Code.gs
+Index.html
+JavaScript.html
+Form.html
+DataTable.html
+CSS.html
+
+3. Enable Google Sheet API
+
+4. Deploy as web app
+
+
 Youtube video:
 
 
