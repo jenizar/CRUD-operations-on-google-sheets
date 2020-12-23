@@ -1,9 +1,3 @@
-/*
-# CREATED BY: BPWEBS.COM
-# URL: https://www.bpwebs.com
-*/
-
-
 function doGet(request) {
   return HtmlService.createTemplateFromFile('Index').evaluate();
 }
