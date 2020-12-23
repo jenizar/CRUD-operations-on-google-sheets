@@ -1,138 +1,202 @@
-<script>
-  // Prevent forms from submitting.
-  function preventFormSubmit() {
-    var forms = document.querySelectorAll('form');
-    for (var i = 0; i < forms.length; i++) {
-      forms[i].addEventListener('submit', function(event) {
-      event.preventDefault();
-      });
-    }
+/*
+# CREATED BY: BPWEBS.COM
+# URL: https://www.bpwebs.com
+*/
+
+
+function doGet(request) {
+  return HtmlService.createTemplateFromFile('Index').evaluate();
+}
+
+
+/* DEFINE GLOBAL VARIABLES, CHANGE THESE VARIABLES TO MATCH WITH YOUR SHEET */
+function globalVariables(){ 
+  var varArray = {
+    spreadsheetId   : '10nUQxwLpizaXwrZZ7kpCW9DpvXSLn6qFO7ACIch_YOY', //** CHANGE !!!
+    dataRage        : 'Data!A2:G',                                    //** CHANGE !!!
+    idRange         : 'Data!A2:A',                                    //** CHANGE !!!
+    lastCol         : 'G',                                            //** CHANGE !!!
+    insertRange     : 'Data!A1:G1',                                   //** CHANGE !!!
+    sheetID         : '0'                                             //** CHANGE !!! Ref:https://developers.google.com/sheets/api/guides/concepts#sheet_id
+  };
+  return varArray;
+}
+
+/*
+# PROCESSING FORM ---------------------------------------------------------------------------------
+*/
+
+
+/* PROCESS FORM */
+function processForm(formObject){  
+  if(formObject.RecId && checkID(formObject.RecId)){//Execute if form passes an ID and if is an existing ID
+    updateData(getFormValues(formObject),globalVariables().spreadsheetId,getRangeByID(formObject.RecId)); // Update Data
+  }else{ //Execute if form does not pass an ID
+    appendData(getFormValues(formObject),globalVariables().spreadsheetId,globalVariables().insertRange); //Append Form Data
   }
-  window.addEventListener("load", functionInit, true); 
-  
-  //INITIALIZE FUNCTIONS ONLOAD
-  function functionInit(){  
-    preventFormSubmit();
-    getLastTenRows();
-  };      
-  
-  //HANDLE FORM SUBMISSION
-  function handleFormSubmit(formObject) {
-    google.script.run.withSuccessHandler(createTable).processForm(formObject);
-    document.getElementById("myForm").reset();
+  return getLastTenRows();//Return last 10 rows
+}
+
+
+/* GET FORM VALUES AS AN ARRAY */
+function getFormValues(formObject){
+/* ADD OR REMOVE VARIABLES ACCORDING TO YOUR FORM*/
+  if(formObject.RecId && checkID(formObject.RecId)){
+    var values = [[formObject.RecId.toString(),
+                  formObject.name,
+                  formObject.dateOfAssignment,
+                  formObject.module,
+                  formObject.ricef,
+                  formObject.status,
+                  formObject.description]];
+  }else{
+    var values = [[new Date().getTime().toString(),//https://webapps.stackexchange.com/a/51012/244121
+                  formObject.name,
+                  formObject.dateOfAssignment,
+                  formObject.module,
+                  formObject.ricef,
+                  formObject.status,
+                  formObject.description]];
   }
+  return values;
+}
+
+
+/*
+## CURD FUNCTIONS ----------------------------------------------------------------------------------------
+*/
+
+
+/* CREATE/ APPEND DATA */
+function appendData(values, spreadsheetId,range){
+  var valueRange = Sheets.newRowData();
+  valueRange.values = values;
+  var appendRequest = Sheets.newAppendCellsRequest();
+  appendRequest.sheetID = spreadsheetId;
+  appendRequest.rows = valueRange;
+  var results = Sheets.Spreadsheets.Values.append(valueRange, spreadsheetId, range,{valueInputOption: "RAW"});
+}
+
+
+/* READ DATA */
+function readData(spreadsheetId,range){
+  var result = Sheets.Spreadsheets.Values.get(spreadsheetId, range);
+  return result.values;
+}
+
+
+/* UPDATE DATA */
+function updateData(values,spreadsheetId,range){
+  var valueRange = Sheets.newValueRange();
+  valueRange.values = values;
+  var result = Sheets.Spreadsheets.Values.update(valueRange, spreadsheetId, range, {
+  valueInputOption: "RAW"});
+}
+
+
+/*DELETE DATA*/
+function deleteData(ID){ 
+  //https://developers.google.com/sheets/api/guides/batchupdate
+  //https://developers.google.com/sheets/api/samples/rowcolumn#delete_rows_or_columns
+  var startIndex = getRowIndexByID(ID);
   
-  //GET LAST 10 ROWS
-  function getLastTenRows (){
-   google.script.run.withSuccessHandler(createTable).getLastTenRows();
-  }
+  var deleteRange = {
+                      "sheetId"     : globalVariables().sheetID,
+                      "dimension"   : "ROWS",
+                      "startIndex"  : startIndex,
+                      "endIndex"    : startIndex+1
+                    }
   
+  var deleteRequest= [{"deleteDimension":{"range":deleteRange}}];
+  Sheets.Spreadsheets.batchUpdate({"requests": deleteRequest}, globalVariables().spreadsheetId);
   
-  //GET ALL DATA
-  function getAllData(){
-    //document.getElementById('dataTable').innerHTML = "";
-    google.script.run.withSuccessHandler(createTable).getAllData();
-  }
-  
-  
-  //CREATE THE DATA TABLE
-  function createTable(dataArray) {
-    if(dataArray){
-      var result = "<table class='table table-sm' style='font-size:0.8em'>"+
-                   "<thead style='white-space: nowrap'>"+
-                     "<tr>"+                               //Change table headings to match witht he Google Sheet
-                      "<th scope='col'>Delete</th>"+
-                      "<th scope='col'>Edit</th>"+
-                      "<th scope='col'>ID</th>"+
-                      "<th scope='col'>Name</th>"+
-                      "<th scope='col'>Date of Assignment</th>"+
-                      "<th scope='col'>Module</th>"+
-                      "<th scope='col'>RICEF</th>"+
-                      "<th scope='col'>Status</th>"+
-                      "<th scope='col'>Description</th>"+
-                    "</tr>"+
-                  "</thead>";
-      for(var i=0; i<dataArray.length; i++) {
-          result += "<tr>";
-          result += "<td><button type='button' class='btn btn-danger btn-xs deleteBtn' onclick='deleteData(this);'>Delete</button></td>";
-          result += "<td><button type='button' class='btn btn-warning btn-xs editBtn' onclick='editData(this);'>Edit</button></td>";
-          for(var j=0; j<dataArray[i].length; j++){
-              result += "<td>"+dataArray[i][j]+"</td>";
-          }
-          result += "</tr>";
+  return getLastTenRows();//Return last 10 rows
+}
+
+
+
+/* 
+## HELPER FUNCTIONS FOR CRUD OPERATIONS --------------------------------------------------------------
+*/ 
+
+
+/* CHECK FOR EXISTING ID, RETURN BOOLEAN */
+function checkID(ID){
+  var idList = readData(globalVariables().spreadsheetId,globalVariables().idRange,).reduce(function(a,b){return a.concat(b);});
+  return idList.includes(ID);
+}
+
+
+/* GET DATA RANGE A1 NOTATION FOR GIVEN ID */
+function getRangeByID(id){
+  if(id){
+    var idList = readData(globalVariables().spreadsheetId,globalVariables().idRange);
+    for(var i=0;i<idList.length;i++){
+      if(id==idList[i][0]){
+        return 'Data!A'+(i+2)+':'+globalVariables().lastCol+(i+2);
       }
-      result += "</table>";
-      var div = document.getElementById('dataTable');
-      div.innerHTML = result;
-      document.getElementById("message").innerHTML = "";
-    }else{
-      var div = document.getElementById('dataTable');
-      div.innerHTML = "Data not found!";
     }
   }
+}
 
-  //DELETE DATA
-  function deleteData(el) {
-    var result = confirm("Want to delete?");
-    if (result) {
-      var recordId = el.parentNode.parentNode.cells[2].innerHTML;
-      google.script.run.withSuccessHandler(createTable).deleteData(recordId);
+
+/* GET RECORD BY ID */
+function getRecordById(id){
+  if(id && checkID(id)){
+    var result = readData(globalVariables().spreadsheetId,getRangeByID(id));
+    return result;
+  }
+}
+
+
+/* GET ROW NUMBER FOR GIVEN ID */
+function getRowIndexByID(id){
+  if(id){
+    var idList = readData(globalVariables().spreadsheetId,globalVariables().idRange);
+    for(var i=0;i<idList.length;i++){
+      if(id==idList[i][0]){
+        var rowIndex = parseInt(i+1);
+        return rowIndex;
+      }
     }
   }
-  
-  
-  //EDIT DATA
-  function editData(el){
-    var recordId = el.parentNode.parentNode.cells[2].innerHTML; //https://stackoverflow.com/a/32377357/2391195
-    google.script.run.withSuccessHandler(populateForm).getRecordById(recordId);
-  }
-
-  //POPULATE FORM
-  function populateForm(records){
-    document.getElementById('RecId').value = records[0][0];
-    document.getElementById('name').value = records[0][1];
-    document.getElementById('dateOfAssignment').value = records[0][2];
-    document.getElementById("module").value = records[0][3];
-    document.getElementById(records[0][4]).checked = true;
-    document.getElementById('status').value = records[0][5];
-    document.getElementById('description').value = records[0][6];
-    document.getElementById("message").innerHTML = "<div class='alert alert-warning' role='alert'>Update Record [ID: "+records[0][0]+"]</div>";
-  }
-  
-  //RETRIVE DATA FROM GOOGLE SHEET FOR MODULE DROPDOWN
-  function createModuleDropdown() {
-      //SUBMIT YOUR DATA RANGE FOR DROPDOWN AS THE PARAMETER
-      google.script.run.withSuccessHandler(moduleDropDown).getDropdownList("Cmodule!A1:A9");
-  }
-  
-  //POPULATE MODULE DROPDOWNS
-  function moduleDropDown(values) { //Ref: https://stackoverflow.com/a/53771955/2391195
-    var list = document.getElementById('module');   
-    for (var i = 0; i < values.length; i++) {
-      var option = document.createElement("option");
-      option.value = values[i];
-      option.text = values[i];
-      list.appendChild(option);
-    }
-  }
-  
-  //RETRIVE DATA FROM GOOGLE SHEET FOR STATUS DROPDOWN
-  function createStatusDropdown() {
-      //SUBMIT YOUR DATA RANGE FOR DROPDOWN AS THE PARAMETER
-      google.script.run.withSuccessHandler(statusDropDown).getDropdownList("Cstatus!A1:A5");
-  }
-  
-  //POPULATE STATUS DROPDOWNS
-  function statusDropDown(values) { //Ref: https://stackoverflow.com/a/53771955/2391195
-    var list = document.getElementById('status');   
-    for (var i = 0; i < values.length; i++) {
-      var option = document.createElement("option");
-      option.value = values[i];
-      option.text = values[i];
-      list.appendChild(option);
-    }
-  }  
-</script>
+}
 
 
+/*GET LAST 10 RECORDS */
+function getLastTenRows(){
+  var lastRow = readData(globalVariables().spreadsheetId,globalVariables().dataRage).length+1;
+  if(lastRow<=11){
+    var range = globalVariables().dataRage;
+  }else{
+    var range = 'Data!A'+(lastRow-9)+':'+globalVariables().lastCol;
+  }
+  var lastTenRows = readData(globalVariables().spreadsheetId,range);
+  return lastTenRows;
+}
 
+
+/* GET ALL RECORDS */
+function getAllData(){
+  var data = readData(globalVariables().spreadsheetId,globalVariables().dataRage);
+  return data;
+}
+
+
+/*
+## OTHER HELPERS FUNCTIONS ------------------------------------------------------------------------
+*/
+
+
+/*GET DROPDOWN LIST */
+function getDropdownList(range){
+  var list = readData(globalVariables().spreadsheetId,range);
+  return list;
+}
+
+
+/* INCLUDE HTML PARTS, EG. JAVASCRIPT, CSS, OTHER HTML FILES */
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename)
+      .getContent();
+}
