@@ -23,8 +23,7 @@ CSS.html
 4. Deploy as web app
 
 
-Youtube video:
-
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/Vx8Da4bB620/0.jpg)](http://www.youtube.com/watch?v=Vx8Da4bB620)
 
 
 References:
