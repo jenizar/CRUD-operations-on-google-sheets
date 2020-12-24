@@ -23,7 +23,7 @@ CSS.html
 4. Deploy as web app
 
 
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/Vx8Da4bB620/0.jpg)](http://www.youtube.com/watch?v=Vx8Da4bB620)
+[![Video Tutorial](http://img.youtube.com/vi/Vx8Da4bB620/0.jpg)](http://www.youtube.com/watch?v=Vx8Da4bB620)
 
 
 References:
