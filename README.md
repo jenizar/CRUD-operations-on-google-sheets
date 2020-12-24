@@ -1,7 +1,10 @@
 # CRUD-operations-on-google-sheets
 Online Data Entry Form that can Perform CRUD Operations on Google Sheets
 
+![alt text](https://github.com/jenizar/CRUD-operations-on-google-sheets/blob/main/Screenshot1.png)
 
+
+![alt text](https://github.com/jenizar/CRUD-operations-on-google-sheets/blob/main/Screenshot2.png)
 
 
 Step by step:
